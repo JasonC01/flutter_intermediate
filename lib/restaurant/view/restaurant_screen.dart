@@ -7,6 +7,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_intermediate/common/const/data.dart';
 import 'package:flutter_intermediate/restaurant/component/restaurant_card.dart';
 import 'package:flutter_intermediate/restaurant/model/restaurant_model.dart';
+import 'package:flutter_intermediate/restaurant/view/restuarant_detail_screen.dart';
 
 class RestaurantScreen extends StatelessWidget {
   const RestaurantScreen({super.key});
@@ -32,14 +33,22 @@ class RestaurantScreen extends StatelessWidget {
                 builder: (context, AsyncSnapshot<List> snapshot) {
                   print(snapshot.data);
                   if (!snapshot.hasData) {
-                    return Container();
+                    return Center(
+                      child: CircularProgressIndicator(),
+                    );
                   }
                   return ListView.separated(
                       itemBuilder: (_, index) {
                         final item = snapshot.data![index];
                         final pItem = RestaurantModel.fromJson(json: item);
 
-                        return RestaurantCard.fromModel(model: pItem);
+                        return GestureDetector(
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (_) =>
+                                      RestaurantDetailScreen(id: pItem.id)));
+                            },
+                            child: RestaurantCard.fromModel(model: pItem));
                       },
                       separatorBuilder: (_, index) {
                         return SizedBox(

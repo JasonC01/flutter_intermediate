@@ -4,6 +4,7 @@ import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_intermediate/common/const/colors.dart';
 import 'package:flutter_intermediate/restaurant/model/restaurant_model.dart';
+import 'package:flutter_intermediate/restaurant/model/retaurant_detail_model.dart';
 
 class RestaurantCard extends StatelessWidget {
   final Widget image;
@@ -13,6 +14,8 @@ class RestaurantCard extends StatelessWidget {
   final int deliveryTime;
   final int deliverFee;
   final double ratings;
+  final bool isDetail;
+  final String? detail;
 
   const RestaurantCard(
       {super.key,
@@ -22,48 +25,61 @@ class RestaurantCard extends StatelessWidget {
       required this.ratingsCount,
       required this.deliveryTime,
       required this.deliverFee,
-      required this.ratings});
+      required this.ratings,
+      this.isDetail = false,
+      this.detail});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        ClipRRect(
-          child: image,
-          borderRadius: BorderRadius.circular(12.0),
-        ),
+        if (isDetail) image,
+        if (!isDetail)
+          ClipRRect(
+            child: image,
+            borderRadius: BorderRadius.circular(12.0),
+          ),
         const SizedBox(
           height: 16.0,
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              name,
-              style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(
-              height: 8.0,
-            ),
-            Text(
-              tags.join(' · '),
-              style: TextStyle(color: BODY_TEXT_COLOR, fontSize: 14.0),
-            ),
-            Row(
-              children: [
-                _IconText(icon: Icons.star, label: ratings.toString()),
-                renderDot(),
-                _IconText(icon: Icons.receipt, label: ratingsCount.toString()),
-                renderDot(),
-                _IconText(
-                    icon: Icons.timelapse_outlined, label: "$deliveryTime 분"),
-                renderDot(),
-                _IconText(
-                    icon: Icons.monetization_on,
-                    label: deliverFee == 0 ? '무료' : deliverFee.toString()),
-              ],
-            )
-          ],
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: isDetail ? 16.0 : 0.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                name,
+                style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(
+                height: 8.0,
+              ),
+              Text(
+                tags.join(' · '),
+                style: TextStyle(color: BODY_TEXT_COLOR, fontSize: 14.0),
+              ),
+              Row(
+                children: [
+                  _IconText(icon: Icons.star, label: ratings.toString()),
+                  renderDot(),
+                  _IconText(
+                      icon: Icons.receipt, label: ratingsCount.toString()),
+                  renderDot(),
+                  _IconText(
+                      icon: Icons.timelapse_outlined, label: "$deliveryTime 분"),
+                  renderDot(),
+                  _IconText(
+                      icon: Icons.monetization_on,
+                      label: deliverFee == 0 ? '무료' : deliverFee.toString()),
+                ],
+              ),
+              if (detail != null && isDetail)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  child: Text(detail!),
+                )
+            ],
+          ),
         )
       ],
     );
@@ -85,9 +101,8 @@ class RestaurantCard extends StatelessWidget {
     properties.add(DoubleProperty('rating', ratings));
   }
 
-  factory RestaurantCard.fromModel({
-    required RestaurantModel model,
-  }) {
+  factory RestaurantCard.fromModel(
+      {required RestaurantModel model, bool isDetail = false}) {
     return RestaurantCard(
       image: Image.network(
         model.thumbUrl,
@@ -99,6 +114,8 @@ class RestaurantCard extends StatelessWidget {
       deliveryTime: model.deliveryTime,
       deliverFee: model.deliveryFee,
       ratings: model.ratings,
+      isDetail: isDetail,
+      detail: model is RestaurantDetailModel ? model.detail : null,
     );
   }
 }
