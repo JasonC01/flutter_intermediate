@@ -19,11 +19,10 @@ class CustomInterceptor extends Interceptor {
   @override
   void onRequest(
       RequestOptions options, RequestInterceptorHandler handler) async {
-    // TODO: implement onRequest
-
     if (options.headers['accessToken'] == 'true') {
       options.headers.remove('accessToken');
       final token = await storage.read(key: ACCESS_TOKEN_KEY);
+      print(token);
       options.headers.addAll({'authorization': 'Bearer $token'});
     }
     super.onRequest(options, handler);
